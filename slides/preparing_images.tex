@@ -1,7 +1,7 @@
 \part{windows}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}[fragile]
+\begin{frame}
   \frametitle{Some remarks}
   \framesubtitle{FYI}
 
@@ -18,7 +18,6 @@
 
 \end{frame}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{frame}
@@ -34,14 +33,10 @@
                 single / partition, no swap, nor /boot.
         \end{itemize}
         \item Install cloud-init (v0.7.5 fully supports all FedCloud RP)
-        \item Disable root password: \texttt{passwd -d root}
-        \item Clean-up hardware details (e.g. network devices):
-        \begin{itemize}
-            \item Manually: remove \texttt{/etc/udev/rules.d/70-persistent-net.rules}
-            \item With \texttt{virt-sysprep}
-        \end{itemize}
+        \item Check cloud-init config (at \texttt{/etc/cloud/}) 
     \end{itemize}
   \end{block}
+
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -49,16 +44,23 @@
 \begin{frame}
   \frametitle{Prepare your own images}
   \framesubtitle{Convert to OVA}
+
+ \begin{block}{Clean up}
+   \begin{itemize}
+       \item Disable root password: \texttt{passwd -d root}
+       \item Clean-up hardware details (e.g. network devices):
+       \begin{itemize}
+           \item Manually: remove \texttt{/etc/udev/rules.d/70-persistent-net.rules}
+           \item With \texttt{virt-sysprep}
+       \end{itemize}
+    \end{itemize}
+ \end{block}
     
   \begin{block}{Convert to OVA}
     \begin{itemize}
         \item FedCloud promotes the use of \texttt{OVA} packages.
-        \begin{itemize}
-        \item Contains a \texttt{OVF} file that describes the image.
-        \item and a set of disk files.
-        \end{itemize}
         \item VirtualBox does support exporting to \texttt{OVA} directly.
-        \item See https://github.com/enolfc/img-tools/ if you are using KVM/Xen.
+        \item See \url{https://github.com/enolfc/img-tools/} if you are using KVM/Xen.
     \end{itemize}
   \end{block}
 \end{frame}
@@ -79,3 +81,4 @@
   \end{block}
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
