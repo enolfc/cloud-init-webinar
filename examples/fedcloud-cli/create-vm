@@ -1,7 +1,8 @@
 #!/bin/sh
 
 export OCCI_ENDPOINT=http://server4-eupt.unizar.es:8787/
-export OS_TPL=http://schemas.openstack.org/template/os#584a0134-59dd-4d71-8e50-315ab802fe7f
+# CentOS 6.x
+export OS_TPL=http://schemas.openstack.org/template/os#aa3f84e8-497a-4116-93bf-300c2fc099ae
 export RESOURCE_TPL=http://schemas.openstack.org/template/resource#m1-tiny
 export PUBLIC_KEY="file://$HOME/w/cloud/creds/enolkey-pub.pem"
 
@@ -11,7 +12,7 @@ VM=`occi -e $OCCI_ENDPOINT \
      -a create -r compute  \
      -M $OS_TPL -M $RESOURCE_TPL \
      -t occi.core.title="MyTutorialContextVM_$(date +%s)" \
-     -T user_data="file://$PWD/script.sh" \
+     -T user_data="file://$PWD/user_data_keys.yml" \
      -T public_key="$PUBLIC_KEY" || echo "ERROR"`
 set +x
 echo $VM

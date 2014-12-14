@@ -1,0 +1,79 @@
+From nobody Sun Dec 14 22:58:50 2014
+Content-Type: multipart/mixed; boundary="===============2032634347178721745=="
+MIME-Version: 1.0
+
+--===============2032634347178721745==
+MIME-Version: 1.0
+Content-Type: text/part-handler; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="part-handler.py"
+
+#part-handler
+# vi: syntax=python ts=4
+
+import json
+
+
+def list_types():
+    # return a list of mime-types that are handled by this module
+    return ["application/json"]
+
+
+def handle_part(data, ctype, filename, payload):
+    # data: the cloudinit object
+    # ctype: '__begin__', '__end__', or the specific mime-type of the part
+    # filename: the filename for the part, or dynamically generated part if
+    #           no filename is given attribute is present
+    # payload: the content of the part (empty for begin or end)
+    if ctype == "__begin__":
+        return
+    if ctype == "__end__":
+        return
+
+    if ctype == 'application/json':
+        user_data = json.loads(payload)
+        dump = json.dumps(user_data,
+                          sort_keys=True,
+                          indent=4,
+                          separators=(',', ': '))
+        open('/tmp/jsondata', 'w+').write(dump)
+        print dump
+
+--===============2032634347178721745==
+MIME-Version: 1.0
+Content-Type: text/x-shellscript; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="script.sh"
+
+#!/bin/sh
+echo "Hello World.  The time is now $(date -R)!" | tee /root/output.txt
+
+--===============2032634347178721745==
+MIME-Version: 1.0
+Content-Type: text/cloud-config; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="cloud-config"
+
+#cloud-config
+
+
+runcmd:
+  - [ ls, -l, / ]
+  - [ sh, -xc, "echo $(date) ': hello world!'" ]
+  - [ sh, -c, echo "=========hello world'=========" ]
+  - ls -l /root
+  - [ wget, "http://slashdot.org", -O, /tmp/index.html ]
+
+mounts:
+  - [ xvdc, /srv, "auto", "defaults,nobootwait", "0", "0" ]
+
+--===============2032634347178721745==
+MIME-Version: 1.0
+Content-Type: application/json; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="json.txt"
+
+{ "key": "value", "other_key": [ 1, 2, 3] }
+
+--===============2032634347178721745==--
+

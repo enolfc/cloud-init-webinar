@@ -1,0 +1,87 @@
+#cloud-config
+
+users:
+  - default
+  - name: enol
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock-passwd: true
+    ssh-import-id: enol
+    shell: /bin/bash
+    ssh-authorized-keys: 
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDXJ0NvjC3P2hn7G+ajUP7xpAgzkpokx0SjwuwQQcup3yGwXWhwsK0+GaXTlghgpUz+IIYQDIhQ/fiIo0i0hQn2pRBeDjYqMrcYUebIa40fpSJOxoG+Hrsw82oNgLc2T073FkFu92Fr/i6YPlB21CVaPMx4DHW9Zw0U3nPJjuK2Fw== nova@cloud 
+
+# run yum update 
+package_upgrade: true
+
+yum_repos:
+  # The name of the repository
+  EGI-trusanchors:
+    name: EGI-trustanchors
+    baseurl: http://repository.egi.eu/sw/production/cas/1/current/
+    enabled: true
+    gpgcheck: true
+    gpgkey: http://repository.egi.eu/sw/production/cas/1/GPG-KEY-EUGridPMA-RPM-3
+  rOCCI:
+    name: Repository for rocci.cli 
+    baseurl: http://repository.egi.eu/community/software/rocci.cli/4.3.x/releases/sl/6/x86_64/RPMS/
+    enabled: true
+    gpgcheck: false
+
+
+packages:
+  - ca-policy-egi-core 
+  - occi-cli
+  - voms-clients
+
+write_files:
+  - content: |
+      /DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms1.egee.cesnet.cz
+      /C=NL/O=TERENA/CN=TERENA eScience SSL CA
+    path: /etc/grid-security/vomsdir/fedcloud.egi.eu/voms1.egee.cesnet.cz.lsc
+  - content: |
+      /DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms2.grid.cesnet.cz
+      /C=NL/O=TERENA/CN=TERENA eScience SSL CA
+    path: /etc/grid-security/vomsdir/fedcloud.egi.eu/voms2.grid.cesnet.cz.lsc
+  - content: |
+      "fedcloud.egi.eu" "voms1.egee.cesnet.cz" "15002" "/DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms1.egee.cesnet.cz" "fedcloud.egi.eu"
+    path: /etc/vomses/fedcloud.egi.eu.voms1.grid.cesnet.cz
+  - content: |
+      "fedcloud.egi.eu" "voms2.grid.cesnet.cz" "15002" "/DC=org/DC=terena/DC=tcs/OU=Domain Control Validated/CN=voms2.grid.cesnet.cz" "fedcloud.egi.eu"
+    path: /etc/vomses/fedcloud.egi.eu.voms2.grid.cesnet.cz
+  #
+  # missing here my private cert...
+  #
+
+runcmd:
+  - [ chown, -R, "enol:enol", /home/enol ]
+
+
+# Make sure things run as we need
+cloud_init_modules:
+  - bootcmd
+  - resizefs
+  - set_hostname
+  - update_hostname
+  - update_etc_hosts
+  - rsyslog
+  - users-groups
+  # moved write-files here to avoid ugly user config.
+  - write-files
+  - ssh
+
+
+
+# Added yum-add-repo and package-update-ugrade-install which are
+# not in the default config!
+cloud_config_modules:
+  - mounts
+  - locale
+  - set-passwords
+  - yum-add-repo
+  - package-update-upgrade-install
+  - timezone
+  - mcollective
+  - disable-ec2-metadata
+  - runcmd
+
+

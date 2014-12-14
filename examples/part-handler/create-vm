@@ -11,7 +11,7 @@ VM=`occi -e $OCCI_ENDPOINT \
      -a create -r compute  \
      -M $OS_TPL -M $RESOURCE_TPL \
      -t occi.core.title="MyTutorialContextVM_$(date +%s)" \
-     -T user_data="file://$PWD/script.sh" \
+     -T user_data="file://$PWD/user_data" \
      -T public_key="$PUBLIC_KEY" || echo "ERROR"`
 set +x
 echo $VM
