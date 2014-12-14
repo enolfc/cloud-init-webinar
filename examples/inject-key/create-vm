@@ -1,0 +1,13 @@
+
+OCCI_ENDPOINT=https://carach5.ics.muni.cz:11443/
+OS_TPL=http://occi.carach5.ics.muni.cz/occi/infrastructure/os_tpl#uuid_centos_6_5_test_fedcloud_dukan_89
+RESOURCE_TPL=http://schema.fedcloud.egi.eu/occi/infrastructure/resource_tpl#small
+
+VM=`occi -e $OCCI_ENDPOINT \
+     -n x509 -X -x $X509_USER_PROXY \
+     -a create -r compute  \
+     -M $OS_TPL -M $RESOURCE_TPL \
+     -t occi.core.title="MyTutorialContextVM_$(date +%s)" \
+     -T public_key="file://$PWD/test.key.pub" || echo "ERROR"`
+
+echo $VM
