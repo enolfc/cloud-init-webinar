@@ -1,0 +1,48 @@
+\part{preparing-images}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Windows}
+  %\framesubtitle{FYI}
+
+  \begin{block}{Windows can also be contextualizated!}
+  \begin{itemize}
+    \item cloud-init is linux-only, but
+    \item cloudbase-init can help!
+    \item Features:
+    \begin{itemize}
+        \item setting hostname 
+        \item user creation
+        \item group membership
+        \item static networking
+        \item SSH user's public keys
+        \item user\_data custom scripts running in various shells (CMD.exe / Powershell / bash)
+    \end{itemize}
+  \end{itemize}
+  \end{block}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Windows}
+  \framesubtitle{using cloudbase-init}
+    
+  \begin{block}{Installation}
+    \begin{itemize}
+        \item Installer available at \url{https://github.com/stackforge/cloudbase-init\#binaries}
+        \item Installer can also execute sysprep if needed.
+    \end{itemize}
+  \end{block}
+
+  \begin{block}{Contextualization}
+    \begin{itemize}
+        \item user-data can only be a script 
+        \item but cloudbase-init will use all the meta-data 
+    \end{itemize}
+  \end{block}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

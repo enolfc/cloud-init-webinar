@@ -1,0 +1,93 @@
+\part{Advanced Usage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle{Advanced Usage}
+  \framesubtitle{Linking}
+
+  Networks to choose from:
+  \begin{itemize}
+    \item /network/6 (CESNET)
+    \item /network/public (CSIC)
+    \item /network/17 (CESGA)
+  \end{itemize}
+
+  \hfill\\
+
+  \Fontsmaller
+  \begin{Sbox}
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ occi --endpoint $ENDPOINT \
+        --auth x509 --voms --user-cred $X509_USER_PROXY \
+        --action link --resource $COMPUTE_ID \
+        --link $STORAGE_ID
+
+~$ occi --endpoint $ENDPOINT \
+        --auth x509 --voms --user-cred $X509_USER_PROXY \
+        --action link --resource $COMPUTE_ID \
+        --link $NETWORK_ID
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle{Advanced Usage}
+  \framesubtitle{Unlinking}
+
+  \Fontsmaller
+  \begin{Sbox}
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ occi --endpoint $ENDPOINT \
+        --auth x509 --voms --user-cred $X509_USER_PROXY \
+        --action describe --resource $COMPUTE_ID
+
+~$ LINK_ID="..."
+
+~$ occi --endpoint $ENDPOINT \
+        --auth x509 --voms --user-cred $X509_USER_PROXY \
+        --action unlink --resource $LINK_ID
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}[fragile]
+  \frametitle{Advanced Usage}
+  \framesubtitle{Actions}
+
+  \Fontsmaller
+  \begin{Sbox}
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ occi --endpoint $ENDPOINT \
+        --auth x509 --voms --user-cred $X509_USER_PROXY \
+        --action describe --resource $COMPUTE_ID
+
+~$ occi --endpoint $ENDPOINT \
+        --auth x509 --voms --user-cred $X509_USER_PROXY \
+        --action trigger --resource $COMPUTE_ID \
+        --trigger-action stop
+
+~$ occi --endpoint $ENDPOINT \
+        --auth x509 --voms --user-cred $X509_USER_PROXY \
+        --action describe --resource $COMPUTE_ID
+
+~$ occi --endpoint $ENDPOINT \
+        --auth x509 --voms --user-cred $X509_USER_PROXY \
+        --action trigger --resource $COMPUTE_ID \
+        --trigger-action start
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+\end{frame}

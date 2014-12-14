@@ -1,0 +1,224 @@
+\part{cloud-init}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{cloud-init}
+  \framesubtitle{What is cloud-init?}
+    \begin{itemize}
+      \item Cloud-init abstracts these mechanisms and defines a format for the data
+      \item It can:
+      \begin{itemize}
+        \item configure network, users, ssh keys, filesystems, \dots
+        \item install packages,
+        \item execute arbitrary commands,
+        \item execute user provied scripts,
+        \item configure VM with puppet or chef,
+        \item \dots
+      \end{itemize}
+      \item It also provides mechanisms for extension.
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{cloud-init}
+  \framesubtitle{Supported platforms}
+
+  \begin{itemize}
+    \item Supports:
+    \begin{itemize}
+       \item EC2 metadata server (used by OpenStack)
+       \item NoCloud data format as used by Synnefo.
+       \item OpenNebula context.sh format included in v0.7.3
+        \begin{itemize}
+          \item Since v0.7.5 also supports base64 encoded data as provided in FedCloud.
+        \end{itemize}
+    \end{itemize}
+    \item Packages available for most Linux distributions: ubuntu/debian, SL5/SL6 (in EPEL), SUSE, \dots
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Data available at the VM}
+  \framesubtitle{user data vs meta data}
+
+  \begin{columns}
+    \column{0.5\textwidth}
+    \begin{block}{meta data}
+    \begin{itemize}
+      \item Basic information on the VM 
+      \item VM Identifier 
+      \item Hostname, IP
+      \item User Public Keys
+    \end{itemize}
+    \end{block}
+
+    \column{0.5\textwidth}
+    \begin{block}{user data}
+      User data is treated as opaque data: what you give is what
+      you get back. It is up to the instance (cloud-init) to be able to
+      interpret it.  
+    \end{block}
+  \end{columns}
+
+  \hfil\\
+
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ occi -e $ENDPOINT \
+        -n x509 -X -x $X509_USER_PROXY \
+        -a create -r compute  \
+        -M $OS_TPL -M $RESOURCE_TPL \
+        -t occi.core.title="MyTutorialContextVM_$(date +%s)" \
+        -T public_key="<public key>" \
+        -T user_data="<user data>"
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{cloud-init}
+  \framesubtitle{Handling the meta-data}
+
+  Create key (if you don't have one):
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ ssh-keygen -f test.key
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+  \hfill\\
+
+  Launch VM with \rocci-cli:
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ occi -e $ENDPOINT \
+        -n x509 -X -x $X509_USER_PROXY \
+        -a create -r compute  \
+        -M $OS_TPL -M $RESOURCE_TPL \
+        -t occi.core.title="MyTutorialContextVM_$(date +%s)" \
+        -T public_key="file://$PWD/test.key.pub" 
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+  \hfill\\
+
+  Check results:
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ ssh -i test.key ubuntu@193.144.35.84
+ubuntu@ip-193-144-35-84:~$ 
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{cloud-init}
+  \framesubtitle{user-data}
+
+    \begin{block}{cloud-init inspects the user-data}
+    Some of the supported formats:
+    \begin{itemize}
+      \item user script: execute it.  (begins with \texttt{\#!})
+      \item Cloud Config Data: cloud-config is the simplest way to accomplish
+      some things via user-data. Using cloud-config syntax, the user can
+      specify certain things in a human friendly format. (begins with 
+      \texttt{\#cloud-config})
+      \item include file: contains a list
+      of urls, one per line. Each of the URLs will be read, and their
+      content will be passed through this same set of rules. (begins with 
+      \texttt{\#include})
+      \item gzipped content $\rightarrow$ uncompress and use as it were
+         not compressed.
+      %\item If it can be executed, it is executed 
+      %\item VM Identifier 
+      %\item Hostname, IP
+      %\item User Public Keys
+    \end{itemize}
+    \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{cloud-init}
+  \framesubtitle{execute script}
+
+  Create simple script:
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+#!/bin/sh
+echo "Hello World." > /root/context.txt
+echo "The time is now $(date -R)!" >> /root/context.txt
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+  \hfill\\
+
+  Launch VM with \rocci-cli:
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ occi -e $ENDPOINT -n x509 -X -x $X509_USER_PROXY \
+        -a create -r compute  \
+        [...]
+        -T public_key="file://$PWD/test.key.pub" \
+        -T user_data="file://$PWD/script.sh"
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+  \hfill\\
+
+  Check results:
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ ssh -i test.key ubuntu@155.210.71.129 "sudo cat /root/context.txt"
+Hello World
+The time is now Sat, 13 Dec 2014 16:01:29 +0100
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+\end{frame}

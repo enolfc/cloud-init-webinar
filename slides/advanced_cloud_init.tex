@@ -1,0 +1,112 @@
+\part{advanced-cloud-init}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{More complex cloud-init}
+  \framesubtitle{Mixing user data types}
+    
+  \begin{block}{If user data is a MIME multi part archive:}
+    \begin{itemize}
+        \item cloud-init will consider each of the parts
+        \item For example, both a script and a cloud-config type could be specified.
+        \item Supported content-types:
+        \begin{itemize}
+            \item \texttt{text/x-include-once-url}
+            \item \texttt{text/x-include-url}
+            \item \texttt{text/cloud-config-archive}
+            \item \texttt{text/upstart-job}
+            \item \texttt{text/cloud-config}
+            \item \texttt{text/part-handler}
+            \item \texttt{text/x-shellscript}
+            \item \texttt{text/cloud-boothook}
+        \end{itemize}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Mixing content types}
+  \framesubtitle{cloud-config + script}
+
+  \begin{Sbox}
+  \tiny
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+Content-Type: multipart/mixed; boundary="===============4393449873403893838=="
+MIME-Version: 1.0
+
+--===============4393449873403893838==
+Content-Type: text/cloud-config; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="userdata.txt"
+
+#cloud-config
+users:
+  - name: cloudy 
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock-passwd: true
+    ssh-import-id: cloudy 
+    ssh-authorized-keys:
+      - <your SSH public key>
+
+--===============4393449873403893838==
+Content-Type: text/x-shellscript; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="script.sh"
+
+#!/bin/bash
+
+echo "Hello" > /root/context.txt
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Part Handlers}
+  \framesubtitle{Extending cloud-init}
+
+  \begin{itemize}
+    \item Some python code that is executed for a given mime-type
+    \item Two functions:
+    \begin{itemize}
+        \item \texttt{list\_types} returns the mime-types accepted
+        \item \texttt{handle\_type} receives any user-data metching the
+            accepted types.
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Part Handler}
+  \framesubtitle{demo}
+
+  \begin{Sbox}
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+
+     _    _____  ______ __  __  ____     _    
+  /\| |/\|  __ \|  ____|  \/  |/ __ \ /\| |/\ 
+  \ ` ' /| |  | | |__  | \  / | |  | |\ ` ' / 
+ |_     _| |  | |  __| | |\/| | |  | |_     _|
+  / , . \| |__| | |____| |  | | |__| |/ , . \ 
+  \/|_|\/|_____/|______|_|  |_|\____/ \/|_|\/ 
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+\end{frame}

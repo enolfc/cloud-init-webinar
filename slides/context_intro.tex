@@ -1,0 +1,132 @@
+\part{ContextIntro}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}
+  \frametitle{Contextualization}
+  \framesubtitle{What -- Why?}
+
+  \begin{block}{What?}
+    Contextualization is the process of installing, configuring and
+    preparing software upon boot time on a pre-defined virtual machine
+    image (e.g. hostname, IP address, ssh keys, \dots)
+  \end{block}
+
+  \begin{block}{Why?}
+    \begin{itemize}
+      \item Configuration not known until instantiation (e.g. data location).
+      \item Private Information (e.g. host certs)
+      \item Software that changes frequently or under development.
+      \item Not practical to create a new VM image for every possible configuration.
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Contextualization}
+  \framesubtitle{How?}
+
+  \begin{block}{How?}
+    \begin{itemize}
+      \item Contextualization requires passing some data to the VMs on
+            instantiation
+      \item Standard OCCI API lacks such feature
+      \item New mixins proposed and implemented in \rocci-server, OCCI-OS and Synnefo (i.e. all current RPs of EGI's Fedcloud!)
+    \end{itemize}
+  \end{block}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Contextualization}
+  \framesubtitle{OCCI extensions}
+
+  User data:
+  \begin{Sbox}
+  \Fonttiny
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+Category: user_data;
+          scheme="http://schemas.openstack.org/compute/instance#";
+          class="mixin”
+
+X-OCCI-Attribute: org.openstack.compute.user_data="<base64 encoded data>"
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+  \hfill\\
+
+  Public SSH keys:
+  \begin{Sbox}
+  \Fonttiny
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+Category: public_key;
+          scheme="http://schemas.openstack.org/instance/credentials#";
+          class="mixin"
+
+X-OCCI-Attribute: org.openstack.credentials.publickey.name="<key name>"
+X-OCCI-Attribute: org.openstack.credentials.publickey.data="<the public key>"
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Contextualization}
+  \framesubtitle{\rocci client}
+
+  Use \texttt{-T} option with \rocci-cli:
+
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+~$ occi -e $ENDPOINT \
+        -n x509 -X -x $X509_USER_PROXY \
+        -a create -r compute  \
+        -M $OS_TPL -M $RESOURCE_TPL \
+        -t occi.core.title="MyTutorialContextVM_$(date +%s)" \
+        -T public_key="<public key>" \
+        -T user_data="<user data>"
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Contextualization}
+  \framesubtitle{Using the context data}
+
+    \begin{itemize}
+        \item OCCI extensions specifies how to pass data to the VM
+        \item BUT not how the data will be available!
+        \item Each RP has different mechanisms to provide the data:
+        \begin{itemize}
+            \item metadata server at a fixed location
+            \item iso filesystem
+            \item file injection
+            \item \dots
+        \end{itemize}
+        \item Need a way to abstract this mess!
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+

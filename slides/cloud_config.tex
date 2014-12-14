@@ -1,0 +1,259 @@
+\part{cloud-init}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{cloud-config}
+  \framesubtitle{What is cloud-config?}
+    \begin{itemize}
+        \item Cloud-config is cloud-init own configuration format. 
+        \item It uses a YAML (invalid syntax will make the 
+        contextualization fail!)
+        \item Examples:
+        \begin{itemize}
+            \item apt upgrade should be run on first boot
+            \item a different apt mirror should be used
+            \item additional apt sources should be added
+            \item certain ssh keys should be imported
+            \item and many more...
+        \end{itemize}
+
+    \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Groups and Users}
+  %\framesubtitle{groups and users}
+
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+# Add groups to the system
+# The following example adds the ubuntu group with members foo and bar and
+# the group cloud-users.
+groups:
+  - ubuntu: [foo,bar]
+  - cloud-users
+
+# Add users to the system. Users are added after groups are added.
+users:
+  - default
+  - name: enol
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock-passwd: true
+    ssh-import-id: enol
+    shell: /bin/bash
+    groups: cloud-users
+    ssh-authorized-keys: 
+      - ssh-rsa [...here goes the complete key...]
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Package Management}
+  \framesubtitle{Upgrade, install, repos}
+
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+# run yum update 
+package_upgrade: true
+
+# Install extra packages
+packages:
+  - pwgen
+  - pastebinit
+  - [libpython2.7, 2.7.3-0ubuntu3.1]
+
+# Add you repositories
+yum_repos:
+  EGI-trusanchors:
+    name: EGI-trustanchors
+    baseurl: http://repository.egi.eu/sw/production/cas/1/current/
+    enabled: true
+    gpgcheck: true
+    gpgkey: http://repository.egi.eu/sw/production/cas/1/GPG-KEY-EUGridPMA-RPM-3
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Package Management}
+  \framesubtitle{apt sources}
+
+  \begin{Sbox}
+  \tiny
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+# configure apt sources
+apt_sources:
+  - source: "deb http://repository.egi.eu/sw/production/cas/1/current egi-igtf core"
+    key: |
+      -----BEGIN PGP PUBLIC KEY BLOCK-----
+      Version: GnuPG v1.2.1 (GNU/Linux)
+
+      mQGiBELTiyYRBAD8goP2vWdf46e/stZvzgkBgJIFTMkHqZOpLqlCKTRGf4VHUASh
+      hdaktDtPx44fVO4E3zmugc7FP6xz/Hj3SqrUKt98vzF1EMb3i4UMCOBif+jM6VFS
+      N5N3gDEukNpP2h46LkNPbRPgAEeUmUZy4kTyB9xC/VA7d1sFx6sJZpCHiwCg7DNX
+      bj4Wuk5b+FyyCOg9++xabokEAJwt4+iyDX3uYZrkzh9hOXgrbBiyGrorAz3jOpqM
+      4L9+OKs5q9UsBwVXs5Zjei/irgxNjHNZCPo/V4f7o2CHxa88rn4GvstftSK6Oeey
+      8PaV3vdb5C5SRSbRgvxoUOo6eGVBpv8bVpKm//tNkTboHVsEAKQ1rYzx/m89aCZj
+      VCw5A/0c3E0rH4ZCeNg7yvta9ur3U7n/aFhzbU3wFLhcIndrPaufz5Sy/SYhOaS9
+      RgH36GbsmOq6JskdtSpBLq0768BUmrjcosgWl3REpMAZc4vvtb55WRYsrNSrqmXZ
+      /jHLjQkFHFdObIEcvxl+yIIwUxybMkvdxPZxnpGjF2gg6AoP7rQ5RVVHcmlkUE1B
+      IERpc3RyaWJ1dGlvbiBTaWduaW5nIEtleSAzIDxpbmZvQGV1Z3JpZHBtYS5vcmc+
+      iFkEExECABkFAkLTiyYECwcDAgMVAgMDFgIBAh4BAheAAAoJEMMtmcg827xx5PQA
+      oON2EH0dqfwNjGr1GlGyt1o5bWkzAJ0Y4QOPWaCIJFABoluX5nifjKWV9w==
+      =qXx1
+      -----END PGP PUBLIC KEY BLOCK-----
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Write Files}
+  %\framesubtitle{write files (I)}
+
+  \begin{Sbox}
+  \tiny
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+write_files:
+-   encoding: b64
+    content: CiMgVGhpcyBmaWxlIGNvbnRyb2xzIHRoZSBzdGF0ZSBvZiBTRUxpbnV4...
+    owner: root:root
+    path: /etc/sysconfig/selinux
+    permissions: '0644'
+-   content: |
+        # My new /etc/sysconfig/samba file
+
+        SMBDOPTIONS="-D"
+    path: /etc/sysconfig/samba
+-   content: !!binary |
+        f0VMRgIBAQAAAAAAAAAAAAIAPgABAAAAwARAAAAAAABAAAAAAAAAAJAVAAAAAAAAAAAAAEAAOAAI
+        AEAAHgAdAAYAAAAFAAAAQAAAAAAAAABAAEAAAAAAAEAAQAAAAAAAwAEAAAAAAADAAQAAAAAAAAgA
+        AAAAAAAAAwAAAAQAAAAAAgAAAAAAAAACQAAAAAAAAAJAAAAAAAAcAAAAAAAAABwAAAAAAAAAAQAA
+        ....
+    path: /bin/arch
+    permissions: '0555'
+-   encoding: gzip
+    content: !!binary |
+        H4sIAIDb/U8C/1NW1E/KzNMvzuBKTc7IV8hIzcnJVyjPL8pJ4QIA6N+MVxsAAAA=
+    path: /usr/bin/hello
+    permissions: '0755'
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Run Commands}
+  %\framesubtitle{}
+
+  \begin{Sbox}
+  \Fontsmaller
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+# run commands
+# runcmd contains a list of either lists or a string
+# each item will be executed in order at rc.local like level with
+# output to the console
+runcmd:
+ - [ ls, -l, / ]
+ - [ sh, -xc, "echo $(date) ': hello world!'" ]
+ - [ sh, -c, echo "=========hello world'=========" ]
+ - ls -l /root
+ - [ wget, "http://slashdot.org", -O, /tmp/index.html ]
+
+# boot commands
+# this is very similar to runcmd, but commands run very early
+# in the boot process 
+bootcmd:
+ - echo 192.168.1.130 us.archive.ubuntu.com > /etc/hosts
+ - [ cloud-init-per, once, mymkfs, mkfs, /dev/vdb ]
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}
+  \frametitle{Create a FedCloud client VM}
+  \framesubtitle{}
+
+  \begin{itemize}
+    \item Create user enol with my ssh-key
+    \item Add EGI trust anchors and rOCCI yum repos
+    \item Update packages
+    \item Install ca-policy-egi-core, occi-cli \& voms-clients
+    \item Write fedcloud.egi.eu VO configuration:
+    \begin{itemize}
+        \item .lsc files at /etc/grid-security/vomsdir/fedcloud.egi.eu
+        \item vo config files at /etc/vomses/
+    \end{itemize}
+    \item Put my grid certificate at /home/enol/.globus
+    \item chmod -R /home/enol
+    \item Make sure cloud-init runs all the needed modules
+  \end{itemize}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]
+  \frametitle{Create a FedCloud client VM}
+  \framesubtitle{demo}
+
+  \begin{Sbox}
+  \begin{minipage}{\linewidth-2\fboxsep-2\fboxrule-4pt}
+  \color{white}
+  \begin{verbatim}
+
+     _    _____  ______ __  __  ____     _    
+  /\| |/\|  __ \|  ____|  \/  |/ __ \ /\| |/\ 
+  \ ` ' /| |  | | |__  | \  / | |  | |\ ` ' / 
+ |_     _| |  | |  __| | |\/| | |  | |_     _|
+  / , . \| |__| | |____| |  | | |__| |/ , . \ 
+  \/|_|\/|_____/|______|_|  |_|\____/ \/|_|\/ 
+  \end{verbatim}
+  \end{minipage}
+  \end{Sbox}
+  \fcolorbox{black}{black}{\TheSbox}
+
+\end{frame}
+
